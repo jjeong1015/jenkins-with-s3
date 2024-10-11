@@ -82,7 +82,7 @@ $ sudo init 6
 ![image3](https://github.com/user-attachments/assets/66b58ce2-80a3-4b97-b786-2dd6a2347247)
 ![image4](https://github.com/user-attachments/assets/b5dca1ae-469a-4a81-aaa1-039e80146eba)
 ```bash
-ngrok config add-authtoken 2mazkbTnosXgNxUn7GmF9DCltsR_c2eF9uiFGTPBtf3TxBqn
+ngrok config add-authtoken _______________
 
 ngrok http 8140
 ```
