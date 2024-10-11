@@ -1,1 +1,271 @@
-## CI-CD-Pipeline-with-Jenkins-and-AWS
+# CI-CD-Pipeline-with-Jenkins-and-AWS
+
+Spring Boot 애플리케이션을 자동으로 빌드, 테스트, 배포하는 CI/CD 파이프라인을 구축해보고자 한다.
+
+##  ⚙️  기술 스택 및 도구
+Jenkins: 빌드 및 배포 자동화를 위한 CI 서버<br>
+Ngrok: 로컬 Jenkins 서버에 외부 접근을 가능하게 하는 터널링 도구<br>
+Spring Boot: 백엔드 애플리케이션 프레임워크<br>
+Amazon EC2: 애플리케이션을 실행하는 클라우드 서버<br>
+Amazon RDS : Spring Boot 애플리케이션의 데이터베이스를 제공하는 관리형 관계형 데이터베이스 서비스<br>
+Amazon S3: 빌드된 JAR 파일을 저장하는 클라우드 스토리지<br>
+AWS CLI: S3에 파일을 업로드하는 도구<br>
+
+##  📜  파이프라인 흐름
+GitHub → Jenkins 트리거
+개발자가 코드를 GitHub에 푸시하면, Jenkins가 자동으로 빌드를 시작한다. Webhook을 설정해 GitHub에서 푸시나 PR(Pull Request)이 발생할 때 Jenkins가 이를 감지하여 빌드를 트리거한다.
+
+Ngrok을 통한 로컬 Jenkins 공개
+Jenkins가 로컬에서 실행 중일 경우, Ngrok을 사용하여 외부에서 GitHub Webhook 요청을 받을 수 있도록 Jenkins를 외부에 노출한다.
+
+Spring Boot 애플리케이션 빌드
+Jenkins는 GitHub에서 소스 코드를 가져와 Spring Boot 애플리케이션을 빌드한다. 이 애플리케이션은 Amazon RDS와 연동되는 백엔드 서버이다.
+
+Amazon S3에 JAR 파일 업로드
+빌드가 완료되면, Jenkins는 AWS CLI를 사용해 빌드된 JAR 파일을 S3 버킷에 업로드한다.
+
+EC2 인스턴스에서 애플리케이션 실행
+EC2 인스턴스는 S3에서 업로드된 JAR 파일을 다운로드해 애플리케이션을 실행한다. 이 과정을 통해 Spring Boot 애플리케이션이 자동으로 배포된다.
+
+##  🚀  배포 흐름
+GitHub에 코드 푸시<br>
+Jenkins가 자동으로 빌드 실행<br>
+빌드된 JAR 파일을 Amazon S3에 업로드<br>
+EC2 인스턴스에서 JAR 파일 다운로드 및 애플리케이션 실행<br>
+
+```bash
+# 1. apt 인덱스 업데이트
+
+$ sudo apt-get update
+$ sudo apt-get install ca-certificates curl gnupg lsb-release
+
+# 2. Docker 공식 GPG 키 추가
+
+$ sudo mkdir -m 0755 -p /etc/apt/keyrings
+$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+# 3. Docker 저장소를 APT 소스에 추가
+
+$ echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# 4. APT 패키지 캐시 업데이트
+
+$ sudo apt-get update
+
+# 5. Docker 서비스 상태 확인
+
+$ sudo apt-get install docker-ce docker-ce-cli [containerd.io](http://containerd.io/) docker-buildx-plugin docker-compose-plugin
+
+# 6. 사용자 권한 설정
+
+$ sudo usermod -aG docker $USER # docker 명령어 사용시 sudo 권한 부여하는 설정(재부팅 필수)
+$ newgrp docker    # 설정한 그룹 즉각 인식하는 명령어, 생략시 재부팅 후에만 group 적용
+$ groups
+$ tail /etc/group
+
+# 7. 설치 확인
+
+$ docker --version
+
+docker login -u [docker id]
+```
+
+```bash
+$ sudo vi /etc/netplan/00-installer-config.yaml
+```
+![image1](https://github.com/user-attachments/assets/394bb572-2885-4ec4-8333-eab0c9c6c54f)
+```bash
+$ sudo netplan apply
+$ sudo init 6
+```
+![image2](https://github.com/user-attachments/assets/281039d6-8a77-4c62-91ee-06040a19bf6b)
+![image3](https://github.com/user-attachments/assets/66b58ce2-80a3-4b97-b786-2dd6a2347247)
+![image4](https://github.com/user-attachments/assets/b5dca1ae-469a-4a81-aaa1-039e80146eba)
+```bash
+ngrok config add-authtoken 2mazkbTnosXgNxUn7GmF9DCltsR_c2eF9uiFGTPBtf3TxBqn
+
+ngrok http 8140
+```
+![image5](https://github.com/user-attachments/assets/bb706bce-37a8-474e-a864-f4428ee7b752)
+```bash
+$ docker run --name myjenkins --privileged -p 8140:8080 jenkins/jenkins:lts-jdk17
+```
+![image6](https://github.com/user-attachments/assets/bc394fe8-cb07-4fc7-bd0a-a9d7aedfe92e)
+![image7](https://github.com/user-attachments/assets/c3404152-69f1-416a-94ea-c9db8ac97984)
+```text
+password : 
+```
+![image8](https://github.com/user-attachments/assets/fcba470f-968c-490b-84c7-783ba7a7c3ee)
+![image9](https://github.com/user-attachments/assets/a21b83d0-deb3-49e8-a558-b6d8065f6ee8)
+![image10](https://github.com/user-attachments/assets/53711370-9802-48ad-8e89-c3c3ea819fab)
+![image11](https://github.com/user-attachments/assets/e09bdf83-0128-4dd7-9b11-1886b998b093)
+![image12](https://github.com/user-attachments/assets/8e9310ea-866b-404b-84c7-029125d19091)
+```bash
+$ docker start myjenkins
+```
+
+### ERROR 발생
+![image13](https://github.com/user-attachments/assets/17d63200-6445-4c17-94dd-22eefd8b755c)
+#### X
+![image14](https://github.com/user-attachments/assets/7fc0e330-ec2e-4142-b0e5-5113d8381712)
+#### O
+![image15](https://github.com/user-attachments/assets/ae394eff-a293-48f8-8cb8-d215a8858b5b)
+![image16](https://github.com/user-attachments/assets/737afab5-a09a-4b06-a7e0-e4bde169741e)
+```bash
+pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+                git branch: 'main', url: 'https://github.com/jjeong1015/CI-CD-Pipeline-with-Jenkins-and-AWS.git'
+            }
+        }
+        
+        stage('Compile and Build') {
+            steps { # repository 폴더 구조 반영해야 하는 부분
+                sh 'chmod +x gradlew'
+                sh './gradlew clean build -x test'
+                sh 'echo $WORKSPACE'
+            }
+        }
+    }
+}
+```
+![image17](https://github.com/user-attachments/assets/8f809ef4-197a-47b2-9456-ed6142b6a8a2)
+```text
+깃허브 토큰을 credentials Password에 입력
+github_pat_XXXXXXXXXXXXXXXXXXXXXXXXX
+```
+![image18](https://github.com/user-attachments/assets/163fd265-5208-422e-be95-b146e1f3ea1e)
+![image19](https://github.com/user-attachments/assets/cc9d75fe-0bbb-42e8-975a-9b3e68088b0d)
+### ERROR 발생
+```text
+[Pipeline] End of Pipeline
+java.lang.UnsupportedOperationException: no known implementation of class org.jenkinsci.plugins.credentialsbinding.MultiBinding is named AmazonWebServicesCredentialsBinding
+```
+![image20](https://github.com/user-attachments/assets/7cffee52-b985-48b8-b072-d972636463e9)
+```bash
+$ docker start myjenkins
+```
+```bash
+$ docker exec -u root -it myjenkins bash
+
+$ apt install curl unzip
+$ curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+$ unzip awscliv2.zip
+$ ./aws/install
+$ aws --version
+$ aws configure
+# AWS Access Key ID [None]: 
+# AWS Secret Access Key [None]: 
+# Default region name [None]: 
+# Default output format [None]: 
+```
+### ERROR 발생
+```text
++ aws s3 cp /var/jenkins_home/workspace/Mission14_01/build/libs/step18_empApp-0.0.1-SNAPSHOT.jar s3://ce26-bucket-02/
+upload failed: build/libs/step18_empApp-0.0.1-SNAPSHOT.jar to s3://ce26-bucket-02/step18_empApp-0.0.1-SNAPSHOT.jar Unable to locate credentials
+```
+![image21](https://github.com/user-attachments/assets/f25ed749-35f5-4f91-a5f4-43149c626dcd)
+![image22](https://github.com/user-attachments/assets/ec3bc7c5-7b58-4334-b83d-dd6fe497855e)
+```bash
+pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+                // GitHub에서 코드 가져오기
+                git branch: 'main', url: 'https://github.com/jjeong1015/CI-CD-Pipeline-with-Jenkins-and-AWS.git', credentialsId: 'jenkins-git-credential'
+            }
+        }
+
+        stage('Compile and Build') {
+            steps {
+                sh 'chmod +x gradlew'
+                sh './gradlew clean build -x test'
+            }
+        }
+
+        stage('Upload to S3') {
+            steps {
+                // AWS 자격 증명 사용하여 S3 업로드
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
+                    sh "aws s3 cp $WORKSPACE/build/libs/step18_empApp-0.0.1-SNAPSHOT.jar s3://ce26-bucket-02/"
+                }
+            }
+        }
+    }
+}
+```
+![image23](https://github.com/user-attachments/assets/a131baf1-c454-4af9-8248-612f69b18c9a)
+![image24](https://github.com/user-attachments/assets/4707dd46-7434-4eb8-b269-c622103cb88d)
+```bash
+$ docker start myjenkins
+```
+
+```bash
+$ docker cp /home/username/ce26-key.pem myjenkins:/var/jenkins_home/ce26-key.pem
+$ docker exec -it myjenkins /bin/bash
+$ chmod 400 /var/jenkins_home/ce26-key.pem
+```
+
+```bash
+$ ssh-keygen -t rsa -b 4096 -C "이메일 주소"
+$ ls ~/.ssh/
+cat ~/.ssh/id_rsa
+-----BEGIN OPENSSH PRIVATE KEY-----
+
+-----END OPENSSH PRIVATE KEY-----
+```
+![image25](https://github.com/user-attachments/assets/cb0b9180-122b-4403-aa03-2a850066b37c)
+![image26](https://github.com/user-attachments/assets/4b85a23c-a928-4ac9-9d82-5a1af4947d65)
+```bash
+pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+                // GitHub에서 코드 가져오기
+                git branch: 'main', url: 'https://github.com/jjeong1015/CI-CD-Pipeline-with-Jenkins-and-AWS.git', credentialsId: 'jenkins-git-credential'
+            }
+        }
+
+        stage('Compile and Build') {
+            steps {
+                sh 'chmod +x gradlew'
+                sh './gradlew clean build -x test'
+                sh 'echo $WORKSPACE'
+            }
+        }
+
+        stage('Upload to S3') {
+            steps {
+                // AWS 자격 증명 사용하여 S3 업로드
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
+                    sh "aws s3 cp $WORKSPACE/build/libs/step18_empApp-0.0.1-SNAPSHOT.jar s3://ce26-bucket-02/"
+                }
+            }
+        }
+        
+        
+        
+        stage('Connect to EC2') {
+            steps {
+                sshagent(['ssh-credentials-id']) {
+                    // 1. JAR 파일을 EC2 인스턴스로 전송 (scp 명령 사용)
+                    sh 'scp -i /var/jenkins_home/ce26-key.pem $WORKSPACE/build/libs/step18_empApp-0.0.1-SNAPSHOT.jar ubuntu@[public ip]:/home/ubuntu/'
+
+                    // 2. EC2 인스턴스에서 JAR 파일을 백그라운드에서 실행 (ssh + nohup + & 사용)
+                    sh 'ssh -i /var/jenkins_home/ce26-key.pem ubuntu@[public ip] "nohup sudo java -jar /home/ubuntu/step18_empApp-0.0.1-SNAPSHOT.jar > /dev/null 2>&1 &"'
+                }
+            }
+        }
+    }
+}
+```
+![image27](https://github.com/user-attachments/assets/41aaa36d-6f30-4e4e-b8cd-d92920410909)
+![image28](https://github.com/user-attachments/assets/c1292925-d545-40ee-8dcf-ab34d4698ef2)
+![image29](https://github.com/user-attachments/assets/1e1a536e-1b5f-40bc-bbe3-97a709faea7e)
