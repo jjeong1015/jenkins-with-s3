@@ -33,61 +33,68 @@ Jenkins가 자동으로 빌드 실행<br>
 빌드된 JAR 파일을 Amazon S3에 업로드<br>
 EC2 인스턴스에서 JAR 파일 다운로드 및 애플리케이션 실행<br>
 
+## 🛠️ Docker 설치 및 설정
 ```bash
 # 1. apt 인덱스 업데이트
-
 $ sudo apt-get update
+
+# 2. 필수 패키지 설치
 $ sudo apt-get install ca-certificates curl gnupg lsb-release
 
-# 2. Docker 공식 GPG 키 추가
-
+# 3. Docker 공식 GPG 키 추가
 $ sudo mkdir -m 0755 -p /etc/apt/keyrings
 $ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 
-# 3. Docker 저장소를 APT 소스에 추가
-
+# 4. Docker 저장소를 APT 소스에 추가
 $ echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-# 4. APT 패키지 캐시 업데이트
-
+# 5. APT 패키지 캐시 업데이트
 $ sudo apt-get update
 
-# 5. Docker 서비스 상태 확인
-
+# 6. Docker 설치
 $ sudo apt-get install docker-ce docker-ce-cli [containerd.io](http://containerd.io/) docker-buildx-plugin docker-compose-plugin
 
-# 6. 사용자 권한 설정
-
+# 7. Docker 명령어를 sudo 없이 사용하기 위한 사용자 권한 설정
 $ sudo usermod -aG docker $USER # docker 명령어 사용시 sudo 권한 부여하는 설정(재부팅 필수)
 $ newgrp docker    # 설정한 그룹 즉각 인식하는 명령어, 생략시 재부팅 후에만 group 적용
-$ groups
-$ tail /etc/group
 
-# 7. 설치 확인
-
+# 8. 설치 확인
 $ docker --version
 
 docker login -u [docker id]
 ```
 
+## 🛠️ Netplan 설정
 ```bash
+# Netplan 설정 파일 수정
 $ sudo vi /etc/netplan/00-installer-config.yaml
 ```
 ![image1](https://github.com/user-attachments/assets/394bb572-2885-4ec4-8333-eab0c9c6c54f)
 ```bash
+# 변경 사항 적용
 $ sudo netplan apply
+# 서버 재시작
 $ sudo init 6
 ```
+## 🛠️ 포트 번호 설정
+### Jenkins : 8140, SSH : 8014
 ![image2](https://github.com/user-attachments/assets/281039d6-8a77-4c62-91ee-06040a19bf6b)
 ![image3](https://github.com/user-attachments/assets/66b58ce2-80a3-4b97-b786-2dd6a2347247)
 ![image4](https://github.com/user-attachments/assets/b5dca1ae-469a-4a81-aaa1-039e80146eba)
+## 🛠️ Ngrok 설정
 ```bash
-ngrok config add-authtoken _______________
+# 1. Ngrok 회원가입 후 인증 토큰 발급
 
+# 2. Ngrok 토큰 등록
+ngrok config add-authtoken [Your Ngrok Token]
+
+# 3. Jenkins 서버를 외부에 노출
 ngrok http 8140
 ```
 ![image5](https://github.com/user-attachments/assets/bb706bce-37a8-474e-a864-f4428ee7b752)
+## 🛠️ Jenkins 컨테이너 실행
 ```bash
+# Jenkins 컨테이너 생성 및 실행
 $ docker run --name myjenkins --privileged -p 8140:8080 jenkins/jenkins:lts-jdk17
 ```
 ![image6](https://github.com/user-attachments/assets/bc394fe8-cb07-4fc7-bd0a-a9d7aedfe92e)
@@ -95,10 +102,12 @@ $ docker run --name myjenkins --privileged -p 8140:8080 jenkins/jenkins:lts-jdk1
 ```text
 password : 
 ```
+## 🛠️ Jenkins 프로젝트 구성
 ![image8](https://github.com/user-attachments/assets/fcba470f-968c-490b-84c7-783ba7a7c3ee)
 ![image9](https://github.com/user-attachments/assets/a21b83d0-deb3-49e8-a558-b6d8065f6ee8)
 ![image10](https://github.com/user-attachments/assets/53711370-9802-48ad-8e89-c3c3ea819fab)
 ![image11](https://github.com/user-attachments/assets/e09bdf83-0128-4dd7-9b11-1886b998b093)
+## 🛠️ Jenkins Plugin 설치
 ![image12](https://github.com/user-attachments/assets/8e9310ea-866b-404b-84c7-029125d19091)
 ```bash
 $ docker start myjenkins
@@ -116,7 +125,7 @@ pipeline {
     agent any
 
     stages {
-        stage('Build') {
+        stage('Clone Repository') {
             steps {
                 git branch: 'main', url: 'https://github.com/jjeong1015/CI-CD-Pipeline-with-Jenkins-and-AWS.git'
             }
@@ -135,7 +144,7 @@ pipeline {
 ![image17](https://github.com/user-attachments/assets/8f809ef4-197a-47b2-9456-ed6142b6a8a2)
 ```text
 깃허브 토큰을 credentials Password에 입력
-github_pat_XXXXXXXXXXXXXXXXXXXXXXXXX
+github_pat_
 ```
 ![image18](https://github.com/user-attachments/assets/163fd265-5208-422e-be95-b146e1f3ea1e)
 ![image19](https://github.com/user-attachments/assets/cc9d75fe-0bbb-42e8-975a-9b3e68088b0d)
@@ -144,11 +153,14 @@ github_pat_XXXXXXXXXXXXXXXXXXXXXXXXX
 [Pipeline] End of Pipeline
 java.lang.UnsupportedOperationException: no known implementation of class org.jenkinsci.plugins.credentialsbinding.MultiBinding is named AmazonWebServicesCredentialsBinding
 ```
+## 🛠️ Jenkins Plugin 설치
 ![image20](https://github.com/user-attachments/assets/7cffee52-b985-48b8-b072-d972636463e9)
 ```bash
 $ docker start myjenkins
 ```
+## 🛠️ AWS CLI 설치 및 구성
 ```bash
+# Jenkins 컨테이너에 AWS CLI 설치
 $ docker exec -u root -it myjenkins bash
 
 $ apt install curl unzip
@@ -174,7 +186,7 @@ pipeline {
     agent any
 
     stages {
-        stage('Build') {
+        stage('Clone Repository') {
             steps {
                 // GitHub에서 코드 가져오기
                 git branch: 'main', url: 'https://github.com/jjeong1015/CI-CD-Pipeline-with-Jenkins-and-AWS.git', credentialsId: 'jenkins-git-credential'
@@ -200,33 +212,38 @@ pipeline {
 }
 ```
 ![image23](https://github.com/user-attachments/assets/a131baf1-c454-4af9-8248-612f69b18c9a)
+## 🛠️ Jenkins Plugin 설치
 ![image24](https://github.com/user-attachments/assets/4707dd46-7434-4eb8-b269-c622103cb88d)
 ```bash
 $ docker start myjenkins
 ```
 
+## 🛠️ SSH 키 설정
 ```bash
-$ docker cp /home/username/ce26-key.pem myjenkins:/var/jenkins_home/ce26-key.pem
-$ docker exec -it myjenkins /bin/bash
-$ chmod 400 /var/jenkins_home/ce26-key.pem
-```
-
-```bash
+# SSH 키 생성
 $ ssh-keygen -t rsa -b 4096 -C "이메일 주소"
+
+# 기존 키 확인
 $ ls ~/.ssh/
 cat ~/.ssh/id_rsa
 -----BEGIN OPENSSH PRIVATE KEY-----
 
 -----END OPENSSH PRIVATE KEY-----
+
+# Jenkins 컨테이너에 SSH 키 복사 및 권한 설정
+$ docker cp /home/username/ce26-key.pem myjenkins:/var/jenkins_home/ce26-key.pem
+$ docker exec -it myjenkins /bin/bash
+$ chmod 400 /var/jenkins_home/ce26-key.pem
 ```
 ![image25](https://github.com/user-attachments/assets/cb0b9180-122b-4403-aa03-2a850066b37c)
 ![image26](https://github.com/user-attachments/assets/4b85a23c-a928-4ac9-9d82-5a1af4947d65)
 ```bash
+## 🛠️ Jenkins 파이프라인 최종 설정
 pipeline {
     agent any
 
     stages {
-        stage('Build') {
+        stage('Clone Repository') {
             steps {
                 // GitHub에서 코드 가져오기
                 git branch: 'main', url: 'https://github.com/jjeong1015/CI-CD-Pipeline-with-Jenkins-and-AWS.git', credentialsId: 'jenkins-git-credential'
@@ -235,9 +252,9 @@ pipeline {
 
         stage('Compile and Build') {
             steps {
-                sh 'chmod +x gradlew'
-                sh './gradlew clean build -x test'
-                sh 'echo $WORKSPACE'
+                sh 'chmod +x gradlew' // 빌드 스크립트에 실행 권한 부여
+                sh './gradlew clean build -x test' // 테스트 제외하고 빌드
+                sh 'echo $WORKSPACE' // 워크스페이스 경로 확인
             }
         }
 
@@ -249,8 +266,6 @@ pipeline {
                 }
             }
         }
-        
-        
         
         stage('Connect to EC2') {
             steps {
