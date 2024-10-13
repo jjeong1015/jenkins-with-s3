@@ -115,7 +115,8 @@ password :
 $ docker start myjenkins
 ```
 
-### ERROR 발생
+### appjar 디렉터리 생성 후 권한 ERROR 발생
+#### chown과 chmod으로 권한을 부여해 에러를 해결했지만, appjar 디렉터리에 jar를 넣으려다 말아서 필요없는 듯하다.
 ![image13](https://github.com/user-attachments/assets/17d63200-6445-4c17-94dd-22eefd8b755c)
 #### X
 ![image14](https://github.com/user-attachments/assets/7fc0e330-ec2e-4142-b0e5-5113d8381712)
