@@ -14,21 +14,21 @@ Amazon S3: 빌드된 JAR 파일을 저장하는 클라우드 스토리지<br>
 AWS CLI: S3에 파일을 업로드하는 도구<br>
 
 ##  📜  파이프라인 흐름
-1. GitHub → Jenkins 트리거
+1. GitHub → Jenkins 트리거<br>
 개발자가 코드를 GitHub에 푸시하면, Jenkins가 자동으로 빌드를 시작한다.<br>
 Webhook을 설정해 GitHub에서 푸시나 PR(Pull Request)이 발생할 때 Jenkins가 이를 감지하여 빌드를 트리거한다.
 
-2. Ngrok을 통한 로컬 Jenkins 공개
+2. Ngrok을 통한 로컬 Jenkins 공개<br>
 Jenkins가 로컬에서 실행 중일 경우, Ngrok을 사용하여 외부에서 GitHub Webhook 요청을 받을 수 있도록 Jenkins를 외부에 노출한다.
 
-3. Spring Boot 애플리케이션 빌드
+3. Spring Boot 애플리케이션 빌드<br>
 Jenkins는 GitHub에서 소스 코드를 가져와 Spring Boot 애플리케이션을 빌드한다.<br>
 이 애플리케이션은 Amazon RDS와 연동되는 백엔드 서버이다.
 
-4. Amazon S3에 JAR 파일 업로드
+4. Amazon S3에 JAR 파일 업로드<br>
 빌드가 완료되면, Jenkins는 AWS CLI를 사용해 빌드된 JAR 파일을 S3 버킷에 업로드한다.
 
-5. EC2 인스턴스에서 애플리케이션 실행
+5. EC2 인스턴스에서 애플리케이션 실행<br>
 EC2 인스턴스는 S3에서 업로드된 JAR 파일을 다운로드해 애플리케이션을 실행한다.<br>
 이 과정을 통해 Spring Boot 애플리케이션이 자동으로 배포된다.
 
