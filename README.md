@@ -1,6 +1,6 @@
-# CI-CD-Pipeline-with-Jenkins-and-AWS
+# jenkins-with-s3
 
-Spring Boot 애플리케이션을 자동으로 빌드, 테스트, 배포하는 CI/CD 파이프라인을 구축해보고자 한다.
+Jenkins를 활용해 Spring Boot 애플리케이션의 자동 빌드, 테스트, 배포가 가능한 CI/CD 파이프라인을 구축하고, 결과물을 S3에 업로드하여 안정적인 배포를 자동화합니다.
 
 ##  ⚙️  기술 스택
 VirtualBox: 가상 환경에서 여러 운영체제를 실행할 수 있게 해주는 오픈 소스 가상화 소프트웨어<br>
@@ -14,26 +14,29 @@ Amazon S3: 빌드된 JAR 파일을 저장하는 클라우드 스토리지<br>
 AWS CLI: S3에 파일을 업로드하는 도구<br>
 
 ##  📜  파이프라인 흐름
-GitHub → Jenkins 트리거
-개발자가 코드를 GitHub에 푸시하면, Jenkins가 자동으로 빌드를 시작한다. Webhook을 설정해 GitHub에서 푸시나 PR(Pull Request)이 발생할 때 Jenkins가 이를 감지하여 빌드를 트리거한다.
+1. GitHub → Jenkins 트리거
+개발자가 코드를 GitHub에 푸시하면, Jenkins가 자동으로 빌드를 시작한다.<br>
+Webhook을 설정해 GitHub에서 푸시나 PR(Pull Request)이 발생할 때 Jenkins가 이를 감지하여 빌드를 트리거한다.
 
-Ngrok을 통한 로컬 Jenkins 공개
+2. Ngrok을 통한 로컬 Jenkins 공개
 Jenkins가 로컬에서 실행 중일 경우, Ngrok을 사용하여 외부에서 GitHub Webhook 요청을 받을 수 있도록 Jenkins를 외부에 노출한다.
 
-Spring Boot 애플리케이션 빌드
-Jenkins는 GitHub에서 소스 코드를 가져와 Spring Boot 애플리케이션을 빌드한다. 이 애플리케이션은 Amazon RDS와 연동되는 백엔드 서버이다.
+3. Spring Boot 애플리케이션 빌드
+Jenkins는 GitHub에서 소스 코드를 가져와 Spring Boot 애플리케이션을 빌드한다.<br>
+이 애플리케이션은 Amazon RDS와 연동되는 백엔드 서버이다.
 
-Amazon S3에 JAR 파일 업로드
+4. Amazon S3에 JAR 파일 업로드
 빌드가 완료되면, Jenkins는 AWS CLI를 사용해 빌드된 JAR 파일을 S3 버킷에 업로드한다.
 
-EC2 인스턴스에서 애플리케이션 실행
-EC2 인스턴스는 S3에서 업로드된 JAR 파일을 다운로드해 애플리케이션을 실행한다. 이 과정을 통해 Spring Boot 애플리케이션이 자동으로 배포된다.
+5. EC2 인스턴스에서 애플리케이션 실행
+EC2 인스턴스는 S3에서 업로드된 JAR 파일을 다운로드해 애플리케이션을 실행한다.<br>
+이 과정을 통해 Spring Boot 애플리케이션이 자동으로 배포된다.
 
 ##  🚀  배포 흐름
-GitHub에 코드 푸시<br>
-Jenkins가 자동으로 빌드 실행<br>
-빌드된 JAR 파일을 Amazon S3에 업로드<br>
-EC2 인스턴스에서 JAR 파일 다운로드 및 애플리케이션 실행<br>
+1. GitHub에 코드 푸시<br>
+2. Jenkins가 자동으로 빌드 실행<br>
+3. 빌드된 JAR 파일을 Amazon S3에 업로드<br>
+4. EC2 인스턴스에서 JAR 파일 다운로드 및 애플리케이션 실행<br>
 
 ## 🛠️ Docker 설치 및 설정
 ```bash
