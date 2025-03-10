@@ -2,16 +2,8 @@
 
 Jenkins를 활용해 Spring Boot 애플리케이션의 자동 빌드, 테스트, 배포가 가능한 CI/CD 파이프라인을 구축하고, 결과물을 S3에 업로드하여 안정적인 배포를 자동화한다.
 
-##  ⚙️  기술 스택
-VirtualBox: 가상 환경에서 여러 운영체제를 실행할 수 있게 해주는 오픈 소스 가상화 소프트웨어<br>
-Docker: 컨테이너 기반 애플리케이션을 배포하고 관리할 수 있게 해주는 플랫폼<br>
-Jenkins: 빌드 및 배포 자동화를 위한 CI 서버<br>
-Ngrok: 로컬 Jenkins 서버에 외부 접근을 가능하게 하는 터널링 도구<br>
-Spring Boot: 백엔드 애플리케이션 프레임워크<br>
-Amazon EC2: 애플리케이션을 실행하는 클라우드 서버<br>
-Amazon RDS : Spring Boot 애플리케이션의 데이터베이스를 제공하는 관리형 관계형 데이터베이스 서비스<br>
-Amazon S3: 빌드된 JAR 파일을 저장하는 클라우드 스토리지<br>
-AWS CLI: S3에 파일을 업로드하는 도구<br>
+## 기술 스택
+<img src="https://img.shields.io/badge/SpringBoot-6DB33F?style=for-the-badge&logo=SpringBoot&logoColor=white"><img src="https://img.shields.io/badge/VirtualBox-183A61?style=for-the-badge&logo=VirtualBox&logoColor=black"><img src="https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black"><img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=Docker&logoColor=black"><img src="https://img.shields.io/badge/Jenkins-D24939?style=for-the-badge&logo=Jenkins&logoColor=white"><img src="https://img.shields.io/badge/Ngrok-1F1E37?style=for-the-badge&logo=ngrok&logoColor=white"><img src="https://img.shields.io/badge/Amazon%20EC2-FF9900?style=for-the-badge&logo=AmazonEC2&logoColor=white"><img src="https://img.shields.io/badge/Amazon%20RDS-527FFF?style=for-the-badge&logo=AmazonRDS&logoColor=white"><img src="https://img.shields.io/badge/Amazon%20S3-569A31?style=for-the-badge&logo=AmazonS3&logoColor=white"><img src="https://img.shields.io/badge/AWS%20CLI-232F3E?style=for-the-badge&logo=AWS%20CLI&logoColor=white">  
 
 ##  📜  파이프라인 흐름
 1. GitHub → Jenkins 트리거<br>
@@ -290,3 +282,7 @@ pipeline {
 ![image27](https://github.com/user-attachments/assets/41aaa36d-6f30-4e4e-b8cd-d92920410909)
 ![image28](https://github.com/user-attachments/assets/c1292925-d545-40ee-8dcf-ab34d4698ef2)
 ![image29](https://github.com/user-attachments/assets/1e1a536e-1b5f-40bc-bbe3-97a709faea7e)
+
+## 🔍 교훈 및 적용
+
+## 🌱 발전
